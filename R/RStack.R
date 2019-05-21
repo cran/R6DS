@@ -6,12 +6,12 @@
 #'
 #' The RStack reference class implements the data structure stack.
 #'
-#' A stack is an ordered list of items following the Last-In-First-Out (LIFO) principle.
-#' The \code{push} method takes elements and push them into the stack,
-#' while the \code{pop} method returns and removes the last "pushed" element in the stack.
+#' A stack is an ordered list of elements following the Last-In-First-Out (LIFO) principle.
+#' The \code{push} method takes elements and add them to the top position (right) of the stack,
+#' while the \code{pop} method returns and removes the last "pushed" (top or rightmost) element in the stack.
 #'
 #' The elements in the stack are not necessarily to be of the same type,
-#' and they can even be of function type.
+#' and they can be any R objects.
 #'
 #' @author Yukai Yang, \email{yukai.yang@@statistik.uu.se}
 #'
@@ -20,20 +20,34 @@
 #'
 #' @seealso \link{R6DS} for the introduction of the reference class and some common methods
 #'
+#' @section Immutable Methods:
+#'
+#' The immutable method does not change the instance.
+#'
+#' \describe{
+#'
+#' \item{\code{peek()}}{
+#' This method returns the last pushed (top or rightmost) element in the stack.
+#' It returns \code{NULL} if the stack is empty.
+#' }
+#'
+#' }
+#'
 #' @section Mutable Methods:
 #'
-#' The mutable methods changes the nodes of the instance.
+#' The mutable methods change the instance.
 #'
 #' \describe{
 #'
 #' \item{\code{push(..., collapse=NULL)}}{
-#' The \code{push} method creates nodes containing the values in \code{...} and \code{collapse},
-#' and push them into the stach on the tail,
-#' which is equivalent to the \code{enqueue} in \code{\link{RQueue}}.
+#' The \code{push} method pushes the elements in \code{...} and \code{collapse} into the stack
+#' (to the top or right).
+#'
+#' Note that you can input multiple elements.
 #' }
 #'
 #' \item{\code{pop()}}{
-#' The \code{pop} method returns and removes the last pushed element in the stack.
+#' The \code{pop} method pops (returns and removes) the last pushed (rightmost) element in the stack.
 #' It returns \code{NULL} if the stack is empty.
 #' }
 #'
@@ -48,9 +62,7 @@
 #' # to create a new instance of the class
 #' stack <- RStack$new()
 #'
-#' # the previous RStack instance will be removed by running the following
-#' # and the memory allocated for that one will be cleared,
-#' # as now stack has been pointed to another instance of the class.
+#' # the previous RStack instance will be removed if you run
 #' stack <- RStack$new(0, 1, 2, collapse=list(3, 4))
 #' # the following sentence is equivalent to the above
 #' stack <- RStack$new(0, 1, 2, 3, 4)
@@ -80,7 +92,7 @@
 #' @export
 RStack <- R6Class("RStack", portable = FALSE, class = FALSE)
 
-RStack$set("private", ".tail", NULL)
+RStack$set("private", ".elem", list())
 
 RStack$set("private", ".len", 0)
 
@@ -89,27 +101,46 @@ RStack$set("active", "size", function(){ return(.len) })
 RStack$set("public", "initialize", function(..., collapse=NULL){
   items <- c(list(...), as.list(collapse))
   .len <<- length(items)
+  iter <- 1
   for(item in items){
-    current <- RNode$new(item)
-    current$setPrev(.tail)
-    .tail <<- current
+    .elem[[iter]] <<- item
+    iter <- iter+1
   }
+})
+
+RStack$set("active", "toList", function(){
+  if(.len == 0) return(list())
+  return(.elem[1:.len])
+})
+
+RStack$set("public", "is_empty", function(){
+  return(.len == 0)
+})
+
+RStack$set("public", "peek", function(){
+  if(.len == 0) return(NULL)
+  return(.elem[[.len]])
 })
 
 RStack$set("public", "push", function(..., collapse=NULL){
   items <- c(list(...), as.list(collapse))
-  .len <<- .len+length(items)
+  iter <- .len+1
   for(item in items){
-    current <- RNode$new(item)
-    current$setPrev(.tail)
-    .tail <<- current
+    .elem[[iter]] <<- item
+    iter <- iter+1
   }
+  .len <<- .len+length(items)
+  return(invisible(NULL))
 })
 
 RStack$set("public", "pop", function(){
   if(.len == 0) return(NULL)
-  current <- .tail
-  .tail <<- .tail$Prev
   .len <<- .len-1
-  return(current$Val)
+  return(.elem[[.len+1]])
+})
+
+RStack$set("public", "release", function(){
+  if(.len > 0){ .elem <<- .elem[1:.len]
+  }else .elem <<- list()
+  return(invisible(NULL))
 })

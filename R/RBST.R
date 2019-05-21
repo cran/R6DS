@@ -2,26 +2,25 @@
 # Binary Search Tree (BST)
 ##########################################################################################
 
-# a lessthan function should be predefined
-# We use RNode as the node of the BST
-# .prev is .left, and .next is .right
-
 #' The RBST reference class
 #'
 #' The RBST reference class implements the data structure binary search tree (BST).
 #'
-#' A BST is a particular type of container storing items or elements (nodes) by following a binary tree structure.
+#' A BST is a particular type of container storing elements in nodes by following a binary tree structure.
+#' So the element is the value of the corresponding node in the tree.
+#'
 #' The BST has one root on top, which is the first node of the tree,
 #' and each node in the BST has at most two sub-nodes (left sub-node and right sub-node) which can be the roots of their sub-trees.
 #'
-#' The BST should be equipped with the "<" and "=" operators such that any two nodes in the tree can be compared.
-#' And therefore, the ">" is defined.
-#' The BST structure follows strictly the rules that, for a certain node in the tree,
-#' any nodes in its left sub-tree must be strictly smaller than it,
-#' any nodes in its right sub-tree must be strictly larger than it,
-#' and any two nodes in the tree must not be equal.
+#' The BST should be equipped with the "<" and "=" operations such that any two nodes in the tree can be compared.
+#' Note that, by the definitions of the "<" and "=" operations, the operation ">" is also defined.
 #'
-#' Therefore, the BST is a special set or dictionary equipped with "<", ">" operators.
+#' The BST structure follows strictly the rules that, for a certain node in the tree,
+#' any nodes in its left sub-tree must be strictly smaller ("<") than it,
+#' any nodes in its right sub-tree must be strictly larger (">") than it,
+#' and any two nodes in the tree must not be equal (no "=").
+#'
+#' Therefore, the BST is a special set or dictionary equipped with "<", ">" operations.
 #'
 #' When you create a new RBST instance, you have to input two functions which defines
 #' the bodies of the two private methods \code{lessthan} and \code{equal}.
@@ -95,17 +94,30 @@
 #' The immutable methods do not change the nodes of the instance.
 #'
 #' \describe{
-#' \item{\code{traverse(mode="in", callback=function(item){print(item)}, ...)}}{
+#'
+#' \item{\code{toList}, \code{toList_pre}, and \code{toList_post}}{
+#' The active method \code{toList} returns a list containing its elements (a copy).
+#'
+#' The order of the list can be "traverse-in-order" by using \code{toList},
+#' "traverse-pre-order" by using \code{toList_pre},
+#' or "traverse-post-order" by using \code{toList_post}
+#' }
+#'
+#' \item{\code{traverse(mode, callback=function(item){print(item)}, ...)}}{
 #' The \code{traverse} method takes at least two arguments which are \code{mode} and \code{callback}.
 #'
 #' The \code{mode} takes a value in one of the three strings
 #' \code{"in"}, \code{"pre"}, and \code{"post"} which indicate
 #' \emph{traverse-in-order}, \emph{traverse-pre-order}, and \emph{traverse-post-order}, respectively.
 #'
-#' The \code{callback} takes a function input
+#' The \code{callback} takes a function
 #' specifying how to handle the value of each node in the tree.
 #' By default, \code{callback} prints the nodes by using the \code{print} function.
 #'
+#' Note that the first argument of the \code{callback} function must be the value of the node
+#' but not the node itself!
+#'
+#' \code{callback} can have two or more arguments.
 #' The method also takes \code{...} as the additional arguments for the \code{callback} function if any.
 #' }
 #'
@@ -136,12 +148,10 @@
 #'
 #' \describe{
 #'
-#' \item{\code{insert(val)}}{
-#' The method \code{insert} inserts a new node and returns \code{TRUE}
-#' showing that the inserting is successful,
-#' but if there is one node in BST that is \code{equal} to the node,
-#' the \code{insert} will do nothing and return a \code{FALSE}
-#' showing that the inserting fails.
+#' \item{\code{insert(..., collapse=NULL)}}{
+#' The method \code{insert} inserts new nodes into the tree.
+#' If some nodes are \code{equal} to the nodes in the tree,
+#' they will not be inserted.
 #' }
 #'
 #' \item{\code{delete(val)}}{
@@ -168,9 +178,6 @@
 #' bst <- RBST$new(lessthan=lessthan, equal=equal)
 #'
 #' # of course you can start to push elements when creating the instance
-#' # the previous BST instance will be removed by doing so
-#' # and the memory allocated for that one will be cleared,
-#' # as now bst has been pointed to another instance of the class.
 #' bst <- RBST$new(lessthan=lessthan, equal=equal,
 #'     list(key=5, val="5"), collapse=list(list(key=3,val="3"), list(key=9,val="9")))
 #' # the following sentence is equivalent to the above
@@ -181,9 +188,7 @@
 #' ### maintaining
 #'
 #' bst$insert(list(key=5, val="6"))
-#' # FALSE though their val are different
 #' bst$insert(list(key=6, val="5"))
-#' # TRUE
 #'
 #' bst$delete(list(key=7, val="7"))
 #' # FALSE
@@ -205,6 +210,12 @@
 #' bst$min
 #' bst$max
 #'
+#' ### toList
+#'
+#' bst$toList
+#' bst$toList_pre
+#' bst$toList_post
+#'
 #' ### traversing
 #'
 #' # by default, the callback function prints the nodes
@@ -214,7 +225,7 @@
 #' # remember that RQueue is a reference class
 #' # so the new callback will store the traversed nodes
 #'
-#' bst$traverse(callback=callback)
+#' bst$traverse(mode = "in", callback=callback)
 #' tmp = queue$dequeue(); print(tmp)
 #' while(!is.null(tmp)) {tmp = queue$dequeue(); print(tmp)}
 #' bst$traverse(mode = "in", callback=callback)
@@ -248,12 +259,37 @@ RBST$set("active", "size", function(){ return(.len) })
 # the equal function defines == between values
 RBST$set("public", "initialize", function(lessthan, equal, ..., collapse=NULL){
   lessthan <<- lessthan; equal <<- equal
-  items = list(...); items = c(items, as.list(collapse))
+  items = c(items = list(...), as.list(collapse))
 
   for(item in items) insert(item)
 })
 
-RBST$set("public", "traverse", function(mode="in", callback=function(item){print(item)}, ...){
+RBST$set("public", "is_empty", function(){
+  return(is.null(.root))
+})
+
+RBST$set("active", "toList", function(){
+  ret <- RQueue$new()
+  callback <- function(item)ret$enqueue(item)
+  traverse(mode = "in", callback=callback)
+  return(ret$toList)
+})
+
+RBST$set("active", "toList_pre", function(){
+  ret <- RQueue$new()
+  callback <- function(item)ret$enqueue(item)
+  traverse(mode = "pre", callback=callback)
+  return(ret$toList)
+})
+
+RBST$set("active", "toList_post", function(){
+  ret <- RQueue$new()
+  callback <- function(item)ret$enqueue(item)
+  traverse(mode = "post", callback=callback)
+  return(ret$toList)
+})
+
+RBST$set("public", "traverse", function(mode, callback=function(item){print(item)}, ...){
   if(mode == "in"){
     traverse_in_order(node=.root, callback=callback, args=list(...))
   }else if(mode == "pre"){
@@ -338,11 +374,19 @@ RBST$set("private", ".insert", function(val, node){
   }
 })
 
-RBST$set("public", "insert", function(val){
-  if(is.null(.root)){
-    .root <<- RNode$new(val); .len <<- 1; return(TRUE)
+RBST$set("public", "insert", function(..., collapse=NULL){
+  items = c(list(...), as.list(collapse))
+  if(length(items) == 0) return(invisible(NULL))
+
+  for(item in items){
+    if(is.null(.root)){
+      .root <<- RNode$new(item); .len <<- 1
+    }else{
+      .insert(item, .root)
+    }
   }
-  return(.insert(val, .root))
+
+  return(invisible(NULL))
 })
 
 RBST$set("private", ".min", function(node){

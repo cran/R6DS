@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Yukai Yang" />
+
+
+<title>Introduction to the R6DS Package</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to the R6DS Package</h1>
+<h4 class="author">Yukai Yang</h4>
+
+
+
+<p>R6DS stands for R6 class based Data Structures. The package provides reference classes implementing some useful <a href="https://en.wikipedia.org/wiki/Data_structure">data stuctures</a>. They are:</p>
+<ul>
+<li>RStack (<a href="https://en.wikipedia.org/wiki/Stack_(abstract_data_type)">stack</a>)</li>
+<li>RQueue (<a href="https://en.wikipedia.org/wiki/Queue_(abstract_data_type)">queue</a>)</li>
+<li>RDeque (<a href="https://en.wikipedia.org/wiki/Double-ended_queue">double-ended queue</a>)</li>
+<li>RDLL (<a href="https://en.wikipedia.org/wiki/Doubly_linked_list">doubly linked list</a>)</li>
+<li>RSet (<a href="https://en.wikipedia.org/wiki/Set_(abstract_data_type)">set</a>)</li>
+<li>RDict (<a href="https://en.wikipedia.org/wiki/Associative_array">dictionary</a>)</li>
+<li>RBST (<a href="https://en.wikipedia.org/wiki/Binary_search_tree">binary search tree</a>)</li>
+</ul>
+<div id="why-do-we-need-the-reference-class" class="section level2">
+<h2>Why do we need the reference class?</h2>
+<p>The importance of the data structures in algorithm implementation and design patterns has been mentioned many many times in textbooks. In this section, I would like to explain why we need to combine the idea of the reference class and the data structures in R.</p>
+<div id="the-reference-class" class="section level3">
+<h3>The reference class</h3>
+<p>The first question is: what is the reference class?</p>
+<p>As an R user, you should know that, in R, everything is an object. This includes the variables like vector, list, data.frame, and etc., and even all the functions (closures).</p>
+<p>Almost all the variables (if the functions are also variables, yes, they are, because the function name can be changed to another function) are assigned or passed by value (this is termed pass-by-value).</p>
+<p>For example, consider the simple assignment:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">x &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb1-2" title="2">y &lt;-<span class="st"> </span>x</a></code></pre></div>
+<p>R will copy the value of <code>x</code> to <code>y</code>, and they are supposed to be two different variables which occupy different memory pieces. However, in practice, the new memory will not be allocated for <code>y</code> immediately when running <code>y &lt;- x</code>. R will do a fake pass-by-reference (that we will explain later), and later new memory will be allocated for <code>y</code>(or <code>x</code>), once the value of <code>x</code>(or <code>y</code>) is changed. So anyway, <code>x</code> to <code>y</code> are supposed to be in different places in the memory.</p>
+<p>Now consider the pass:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># define a function which changes the value of the passed variable,</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co"># and then the new one</span></a>
+<a class="sourceLine" id="cb2-3" title="3">func &lt;-<span class="st"> </span><span class="cf">function</span>(val){ val &lt;-<span class="st"> </span><span class="dv">-1</span>; <span class="kw">return</span>(val) }</a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="co"># remember that x = 0</span></a>
+<a class="sourceLine" id="cb2-6" title="6">z &lt;-<span class="st"> </span><span class="kw">func</span>(x)</a>
+<a class="sourceLine" id="cb2-7" title="7">x</a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="co">#&gt; [1] 0</span></a>
+<a class="sourceLine" id="cb2-9" title="9">z</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co">#&gt; [1] -1</span></a></code></pre></div>
+<p>R will copy the variable <code>x</code> to a new variable <code>val</code>, change the value of <code>val</code>, and then return it by value! (copy the local <code>val</code> to the new variable <code>z</code>, and then kill <code>val</code> when the function exits) So the function actually copies twice in both passing and returning.</p>
+<p>It should be noticed that, if the value of <code>val</code> is not going to be changed inside the function <code>func</code>, that is, <code>func</code> is defined to be a immutable function like, for example,</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># define a function which changes the value of the passed variable,</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co"># and then the new one</span></a>
+<a class="sourceLine" id="cb3-3" title="3">func &lt;-<span class="st"> </span><span class="kw">funcion</span>(val){ <span class="kw">print</span>(val) }</a></code></pre></div>
+<p>then R will pass <code>val</code> by reference (that we will explain later). But anyway, you are changing another variable <code>val</code> instead of <code>x</code> inside the function.</p>
+<p>The idea of pass-by-reference comes from a good dream that we hope when we do something like</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">func &lt;-<span class="st"> </span><span class="cf">function</span>(val){ val &lt;-<span class="st"> </span><span class="dv">-1</span> }</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">func</span>(x)</a></code></pre></div>
+<p>the global <code>x</code> will be changed…</p>
+<p>I will explain why it is a good dream later. But now let’s focus on the pass-by-reference.</p>
+<p>The pass-by-reference in assignment implies that, in the assignment action, for example,</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">y &lt;-<span class="st"> </span>x</a></code></pre></div>
+<p>the variable <code>y</code> will be an alias (the term is a “reference”) of <code>x</code>, which means that both <code>x</code> and <code>y</code> will share the same memory. Once you change the value of either of the two, the other will be changed automatically.</p>
+<p>Now consider the function</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">func &lt;-<span class="st"> </span><span class="cf">function</span>(val){ val &lt;-<span class="st"> </span><span class="dv">-1</span> }</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">func</span>(x)</a></code></pre></div>
+<p>If the function is pass-by-reference, then argument <code>val</code> will share the same memory of <code>x</code> when you run <code>func(x)</code>, and the value of the global <code>x</code> will be changed after calling the function.</p>
+<p>So when we do pass-by-reference, no new memory is allocated, the original variable will have an alias. When you change the value of the alias, the original one will also be changed.</p>
+<p>The reference class follows the same rule, that is, any object or instance of this class will always be passed-by-reference.</p>
+</div>
+<div id="data-structures" class="section level3">
+<h3>Data structures</h3>
+<p>R is becoming a more and more sophisticated language. R users program by using R to make achievements in data sciences. Now the question is that “Are you really happy with only pass-by-value?” or “whether only the pass-by-value is sufficient?”</p>
+<p>The answer is NO, because we are doing much more than expected in data sciences, and some ideas from the data structures are now needed, but the implementation of these ideas needs the pass-by-reference!</p>
+<p>So the dream is that <strong>“we hope that we can input something into some function and the function will change its value!”</strong></p>
+<p>Or, for some people, <strong>“we really miss the pointers or references in Fortran, C, C++, and etc.”</strong></p>
+<p>Even R says no itself due to the fact the Reference Class following the S4 class has been implemented. And then the much more efficient R6 class was implemented and available in the R6 package. I employ the R6 class to implement the data structures.</p>
+<p>Suppose that you want to design and implement some algorithm. The most efficient solution is, for example, to use the recursion, in which you pass a variable into some function, the function will call itself and pass the same variable into it. The corresponding algorithm requires that the variable will be changed inside the recursion. See for example, the <a href="https://en.wikipedia.org/wiki/Binary_search_tree">traverse algorithm in the binary-search-tree</a>, in which, if we want to have a copy of these traversed elements, then it is desirable to pass-by-reference a container (vector, list, data.frame and etc.) into the recursive traverse function. Once an element in the tree is reached, its value will be copied into the container.</p>
+<p>Now you see that, the data structures and the algorithms do require the pass-by-reference feature!</p>
+</div>
+</div>
+<div id="the-r6-class-is-truly-the-reference-class" class="section level2">
+<h2>The R6 class is truly the reference class</h2>
+<p>In order to investigate the R6 class, especially to confirm that it is doing pass-by-reference, consider the example below</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(R6)</a>
+<a class="sourceLine" id="cb7-2" title="2"></a>
+<a class="sourceLine" id="cb7-3" title="3">RClass &lt;-<span class="st"> </span><span class="kw">R6Class</span>(<span class="st">&quot;RClass&quot;</span>, <span class="dt">portable =</span> <span class="ot">FALSE</span>, <span class="dt">class =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5">RClass<span class="op">$</span><span class="kw">set</span>(<span class="st">&quot;private&quot;</span>, <span class="st">&quot;.val&quot;</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7">RClass<span class="op">$</span><span class="kw">set</span>(<span class="st">&quot;public&quot;</span>, <span class="st">&quot;initialize&quot;</span>, <span class="cf">function</span>(<span class="dt">val=</span><span class="dv">0</span>){ .val &lt;&lt;-<span class="st"> </span>val })</a>
+<a class="sourceLine" id="cb7-8" title="8"></a>
+<a class="sourceLine" id="cb7-9" title="9">RClass<span class="op">$</span><span class="kw">set</span>(<span class="st">&quot;active&quot;</span>, <span class="st">&quot;Val&quot;</span>, <span class="cf">function</span>(){ <span class="kw">return</span>(.val) })</a>
+<a class="sourceLine" id="cb7-10" title="10"></a>
+<a class="sourceLine" id="cb7-11" title="11">RClass<span class="op">$</span><span class="kw">set</span>(<span class="st">&quot;public&quot;</span>, <span class="st">&quot;Set&quot;</span>, <span class="cf">function</span>(newval){ .val &lt;&lt;-<span class="st"> </span>newval })</a>
+<a class="sourceLine" id="cb7-12" title="12"></a>
+<a class="sourceLine" id="cb7-13" title="13">RClass<span class="op">$</span><span class="kw">set</span>(<span class="st">&quot;public&quot;</span>, <span class="st">&quot;finalize&quot;</span>, <span class="cf">function</span>(){ <span class="kw">print</span>(<span class="kw">paste</span>(<span class="st">&quot;obj&quot;</span>,.val,<span class="st">&quot;deleted!&quot;</span>)) })</a></code></pre></div>
+<p>We define a new R6 type reference class <code>RClass</code>. It is has a <code>finalize</code> function which will be run when the system removes the instance of the class (free or collect the memory allocated for it). We see that the <code>finalize</code> will print a message show that the instance is being deleted. We do the memory garbage collection manually by using the <code>gc</code> function, because R is “lazy”…</p>
+<p>We test if the memory will be collected when we run <code>gc</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">tmp1 =<span class="st"> </span>RClass<span class="op">$</span><span class="kw">new</span>()</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="kw">rm</span>(tmp1)</a>
+<a class="sourceLine" id="cb8-3" title="3"></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="kw">gc</span>()</a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="co">#&gt; [1] &quot;obj 0 deleted!&quot;</span></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="co">#&gt;           used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)</span></a>
+<a class="sourceLine" id="cb8-7" title="7"><span class="co">#&gt; Ncells  531899 28.5    1169820 62.5         NA   781000 41.8</span></a>
+<a class="sourceLine" id="cb8-8" title="8"><span class="co">#&gt; Vcells 1044738  8.0    8388608 64.0      16384  1771013 13.6</span></a></code></pre></div>
+<p>Yes.</p>
+<p>Then we define the first function to check if the memory of the local variable will be freed when the function exits.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">ftmp &lt;-<span class="st"> </span><span class="cf">function</span>(){ tmp &lt;-<span class="st"> </span>RClass<span class="op">$</span><span class="kw">new</span>() }</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="kw">ftmp</span>()</a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="kw">gc</span>()</a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co">#&gt; [1] &quot;obj 0 deleted!&quot;</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt;           used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; Ncells  532512 28.5    1169820 62.5         NA   946421 50.6</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt; Vcells 1047782  8.0    8388608 64.0      16384  1771013 13.6</span></a></code></pre></div>
+<p>For sure, it will.</p>
+<p>We override the same function to take a variable and print it.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">ftmp &lt;-<span class="st"> </span><span class="cf">function</span>(tmp){ tmp<span class="op">$</span><span class="kw">Set</span>(<span class="dv">1</span>) }</a></code></pre></div>
+<p>Our experiment is designed as follows. If the instance of the <code>RClass</code> class is passed-by-value into the function <code>ftmp</code>, then i) the global <code>tmp1</code> will not be changed; ii) the new variable <code>tmp</code> inside the function will be removed when the function exits, which means that we will see some message saying “obj 1 deleted!”, because the value of <code>tmp</code> is set to one. Now let’s check</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">tmp1 =<span class="st"> </span>RClass<span class="op">$</span><span class="kw">new</span>()</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">ftmp</span>(tmp1)</a>
+<a class="sourceLine" id="cb11-3" title="3"></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="kw">gc</span>()</a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="co">#&gt;           used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="co">#&gt; Ncells  532564 28.5    1169820 62.5         NA   946421 50.6</span></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="co">#&gt; Vcells 1047968  8.0    8388608 64.0      16384  1771013 13.6</span></a>
+<a class="sourceLine" id="cb11-8" title="8">tmp1<span class="op">$</span>Val</a>
+<a class="sourceLine" id="cb11-9" title="9"><span class="co">#&gt; [1] 1</span></a></code></pre></div>
+<p>We see that no memory space is freed, which means that inside the function, no new variable was created. The value of the global <code>tmp1</code> has been changed to one successfully.</p>
+<p>So our conclusion is that R6 is capable!</p>
+</div>
+<div id="the-binary-search-tree-example" class="section level2">
+<h2>The binary search tree example</h2>
+<p>Here is one example of the package R6DS. The binary search tree is quite efficient in sorting, searching and traversing its elements. The time complexity can be <span class="math inline">\(O(log n)\)</span> if the tree is well structured.</p>
+<p>When building the binary search tree, the “&lt;” and “=” operators should be defined and equip to the generator instance of the <code>RBST</code> class. We just compare the numbers for simplicity.</p>
+<p>We consider the tree as follows</p>
+<p><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogMy4wLjAgQnVpbGQgNzcpICAtLT4KPHN2ZzpzdmcKICAgeG1sbnM6eGFwPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICB4bWxuczpwZGY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGRmLzEuMy8iCiAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIKICAgeG1sbnM6Y2M9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zIyIKICAgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIgogICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiCiAgIHhtbG5zOmlua3NjYXBlPSJodHRwOi8vd3d3Lmlua3NjYXBlLm9yZy9uYW1lc3BhY2VzL2lua3NjYXBlIgogICB3aWR0aD0iMzAwIgogICBoZWlnaHQ9IjI1MCIKICAgdmlld0JveD0iMCAwIDI4OS4zMzMgMjUzIgogICBzdHlsZT0ib3ZlcmZsb3c6dmlzaWJsZSIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgaWQ9InN2ZzI2MjMiCiAgIHNvZGlwb2RpOnZlcnNpb249IjAuMzIiCiAgIGlua3NjYXBlOnZlcnNpb249IjAuNDYiCiAgIHNvZGlwb2RpOmRvY25hbWU9IkJpbmFyeV90cmVlLnN2ZyIKICAgaW5rc2NhcGU6b3V0cHV0X2V4dGVuc2lvbj0ib3JnLmlua3NjYXBlLm91dHB1dC5zdmcuaW5rc2NhcGUiCiAgIHZlcnNpb249IjEuMCI+PHN2ZzpkZWZzCiAgIGlkPSJkZWZzMjc5OSI+PGlua3NjYXBlOnBlcnNwZWN0aXZlCiAgIHNvZGlwb2RpOnR5cGU9Imlua3NjYXBlOnBlcnNwM2QiCiAgIGlua3NjYXBlOnZwX3g9IjAgOiAxMjYuNSA6IDEiCiAgIGlua3NjYXBlOnZwX3k9IjAgOiAxMDAwIDogMCIKICAgaW5rc2NhcGU6dnBfej0iMjg5LjMzMzAxIDogMTI2LjUgOiAxIgogICBpbmtzY2FwZTpwZXJzcDNkLW9yaWdpbj0iMTQ0LjY2NjUgOiA4NC4zMzMzMzMgOiAxIgogICBpZD0icGVyc3BlY3RpdmUyODAxIiAvPgoJCQkKCQkJCgkJCQoJCQkKCQkJCgkJCQoJCQkKCQkJCgkJCQoJCQkKCQkJCgkJCQoJCQkKCQkJCgkJCQoJCQkKCQkJCgkJCQoJCQoJCQkJCgkJCQkKCQkJCgkJCQkKCQkJCQoJCQkKCQkJCQoJCQkJCgkJCQoJCQkJCgkJCQkKCQkJCgkJCQkKCQkJCQoJCQkKCQkJCQoJCQkJCgkJCQoJCQkJCgkJCQkKCQkJCgkJCQkKCQkJCQoJCQkKCQkJCQoJCQkJCgkJCQoJCQkJCgkJCQkKCQkJCgkJCQkKCQkJCQoJCQkKCQkJCQoJCQkJCgkJCQoJCQkJCgkJCQkKCQkJCgkJCQkKCQkJCQoJCQkKCQkJCQoJCQkJCgkJCQoJCQkJCgkJCQkKCQkJCgkJCQkKCQkJCQoJCQkKCQkJCQkKCQkJCQkKCQkJCQoJCQkJCQoJCQkJCgkJCQkJCgkJCQkJCgkJCQkKCQkJCQkKCQkJCQoJCQkJCQoJCQkJCQoJCQkJCgkJCQkJCgkJCQkKCQkJCQkKCQkJCQkKCQkJCQoJCQkJCQoJCQkJCgkJCQkJCgkJCQkJCgkJCQkKCQkJCQkKCQkJCQoJCQkJCQoJCQkJCQoJCQkJCgkJCQkJCgkJCQkKCQkJCQkKCQkJCQkKCQkJCQoJCQkJCQoJCQkJCgkJCQkJCgkJCQkJCgkJCQkKCQkJCQkKCQkJCTwvc3ZnOmRlZnM+PHNvZGlwb2RpOm5hbWVkdmlldwogICBpbmtzY2FwZTp3aW5kb3ctaGVpZ2h0PSI4NzQiCiAgIGlua3NjYXBlOndpbmRvdy13aWR0aD0iMTM5OSIKICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIKICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAuMCIKICAgZ3VpZGV0b2xlcmFuY2U9IjEwLjAiCiAgIGdyaWR0b2xlcmFuY2U9IjEwLjAiCiAgIG9iamVjdHRvbGVyYW5jZT0iMTAuMCIKICAgYm9yZGVyb3BhY2l0eT0iMS4wIgogICBib3JkZXJjb2xvcj0iIzY2NjY2NiIKICAgcGFnZWNvbG9yPSIjZmZmZmZmIgogICBpZD0iYmFzZSIKICAgc2hvd2dyaWQ9InRydWUiCiAgIGlua3NjYXBlOnpvb209IjEiCiAgIGlua3NjYXBlOmN4PSIzMjAuNTI4NyIKICAgaW5rc2NhcGU6Y3k9IjgwLjYwODE0MyIKICAgaW5rc2NhcGU6d2luZG93LXg9IjM3IgogICBpbmtzY2FwZTp3aW5kb3cteT0iLTQiCiAgIGlua3NjYXBlOmN1cnJlbnQtbGF5ZXI9ImczMDAwIj48aW5rc2NhcGU6Z3JpZAogICAgIHR5cGU9Inh5Z3JpZCIKICAgICBpZD0iZ3JpZDI5NzkiCiAgICAgdmlzaWJsZT0idHJ1ZSIKICAgICBlbmFibGVkPSJ0cnVlIiAvPjwvc29kaXBvZGk6bmFtZWR2aWV3PgoJPHN2ZzptZXRhZGF0YQogICBpZD0ibWV0YWRhdGEyNjI1Ij4KPHhwYWNrZXQgLz48YWRvYmUteGFwLWZpbHRlcnMgLz4KPHJkZjpSREY+CgogPHJkZjpEZXNjcmlwdGlvbgogICBhYm91dD0iIj4KICA8cGRmOlByb2R1Y2VyPkFkb2JlIFBERiBsaWJyYXJ5IDUuMDA8L3BkZjpQcm9kdWNlcj4KICA8IS0tIHBkZjpDcmVhdGlvbkRhdGUgaXMgYWxpYXNlZCAtLT4KICA8IS0tIHBkZjpNb2REYXRlIGlzIGFsaWFzZWQgLS0+CiAgPCEtLSBwZGY6Q3JlYXRvciBpcyBhbGlhc2VkIC0tPgogPC9yZGY6RGVzY3JpcHRpb24+CgogPHJkZjpEZXNjcmlwdGlvbgogICBhYm91dD0iIj4KICA8eGFwOkNyZWF0ZURhdGU+MjAwNC0wMS0yM1QyMDowNDoyNC0wNDowMDwveGFwOkNyZWF0ZURhdGU+CiAgPHhhcDpNb2RpZnlEYXRlPjIwMDUtMTItMzFUMjE6MzA6MjBaPC94YXA6TW9kaWZ5RGF0ZT4KICA8eGFwOkNyZWF0b3JUb29sPkFkb2JlIElsbHVzdHJhdG9yIDEwLjA8L3hhcDpDcmVhdG9yVG9vbD4KICA8eGFwOk1ldGFkYXRhRGF0ZT4yMDA0LTAxLTIzVDIwOjI1OjAxLTA1OjAwPC94YXA6TWV0YWRhdGFEYXRlPgogPC9yZGY6RGVzY3JpcHRpb24+Cgo8Y2M6V29yawogICByZGY6YWJvdXQ9IiI+PGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+PGRjOnR5cGUKICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPjwvY2M6V29yaz48L3JkZjpSREY+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHhwYWNrZXQgLz4KCQkJPC9zdmc6bWV0YWRhdGE+CgkJCgk8c3ZnOmcKICAgc3R5bGU9Im92ZXJmbG93OnZpc2libGUiCiAgIGlkPSJnMjk4NyIKICAgdHJhbnNmb3JtPSJtYXRyaXgoMS4wMTIsMCwwLDEuMDEyLDE4MC4wODY1LDQyLjUwNCkiPjxzdmc6cGF0aAogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKDcwLjAwMDAwNCwtMTUpIgogICAgIGQ9Ik0gLTg1LjAwMDAwOCwtMiBBIDIwLDIwIDAgMSAxIC0xMjUuMDAwMDEsLTIgQSAyMCwyMCAwIDEgMSAtODUuMDAwMDA4LC0yIHoiCiAgICAgc29kaXBvZGk6cnk9IjIwIgogICAgIHNvZGlwb2RpOnJ4PSIyMCIKICAgICBzb2RpcG9kaTpjeT0iLTIiCiAgICAgc29kaXBvZGk6Y3g9Ii0xMDUuMDAwMDEiCiAgICAgaWQ9InBhdGgyOTgxIgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDpub25lO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIgogICAgIHNvZGlwb2RpOnR5cGU9ImFyYyIgLz48c3ZnOnRleHQKICAgICBzb2RpcG9kaTpsaW5lc3BhY2luZz0iMTI1JSIKICAgICBpZD0idGV4dDI5ODMiCiAgICAgeT0iLTguMDkzNzUiCiAgICAgeD0iLTQyLjMxMjUwNCIKICAgICBzdHlsZT0iZm9udC1zaXplOjI0cHg7Zm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDt0ZXh0LWFsaWduOnN0YXJ0O2xpbmUtaGVpZ2h0OjEyNSU7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0O29wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGU7Zm9udC1mYW1pbHk6RGVqYVZ1IFNhbnM7LWlua3NjYXBlLWZvbnQtc3BlY2lmaWNhdGlvbjpEZWphVnUgU2FucyIKICAgICB4bWw6c3BhY2U9InByZXNlcnZlIj48c3ZnOnRzcGFuCiAgICAgICB5PSItOC4wOTM3NSIKICAgICAgIHg9Ii00Mi4zMTI1MDQiCiAgICAgICBpZD0idHNwYW4yOTg1IgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSI+ODwvc3ZnOnRzcGFuPjwvc3ZnOnRleHQ+Cjwvc3ZnOmc+PHN2ZzpnCiAgIHN0eWxlPSJvdmVyZmxvdzp2aXNpYmxlIgogICBpZD0iZzI5OTIiCiAgIHRyYW5zZm9ybT0ibWF0cml4KDEuMDEyLDAsMCwxLjAxMiwxMDQuMTg2NSw5OC4xNjQpIj48c3ZnOnBhdGgKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3MC4wMDAwMDQsLTE1KSIKICAgICBkPSJNIC04NS4wMDAwMDgsLTIgQSAyMCwyMCAwIDEgMSAtMTI1LjAwMDAxLC0yIEEgMjAsMjAgMCAxIDEgLTg1LjAwMDAwOCwtMiB6IgogICAgIHNvZGlwb2RpOnJ5PSIyMCIKICAgICBzb2RpcG9kaTpyeD0iMjAiCiAgICAgc29kaXBvZGk6Y3k9Ii0yIgogICAgIHNvZGlwb2RpOmN4PSItMTA1LjAwMDAxIgogICAgIGlkPSJwYXRoMjk5NCIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6bm9uZTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTp0eXBlPSJhcmMiIC8+PHN2Zzp0ZXh0CiAgICAgc29kaXBvZGk6bGluZXNwYWNpbmc9IjEyNSUiCiAgICAgaWQ9InRleHQyOTk2IgogICAgIHk9Ii04LjA5Mzc1IgogICAgIHg9Ii00Mi4zMTI1MDQiCiAgICAgc3R5bGU9ImZvbnQtc2l6ZToyNHB4O2ZvbnQtc3R5bGU6bm9ybWFsO2ZvbnQtdmFyaWFudDpub3JtYWw7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtc3RyZXRjaDpub3JtYWw7dGV4dC1hbGlnbjpzdGFydDtsaW5lLWhlaWdodDoxMjUlO3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlO2ZvbnQtZmFtaWx5OkRlamFWdSBTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246RGVqYVZ1IFNhbnMiCiAgICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN2Zzp0c3BhbgogICAgICAgeT0iLTguMDkzNzUiCiAgICAgICB4PSItNDIuMzEyNTA0IgogICAgICAgaWQ9InRzcGFuMjk5OCIKICAgICAgIHNvZGlwb2RpOnJvbGU9ImxpbmUiPjM8L3N2Zzp0c3Bhbj48L3N2Zzp0ZXh0Pgo8L3N2ZzpnPjxzdmc6ZwogICBzdHlsZT0ib3ZlcmZsb3c6dmlzaWJsZSIKICAgaWQ9ImczMDAwIgogICB0cmFuc2Zvcm09Im1hdHJpeCgxLjAxMiwwLDAsMS4wMTIsMjU1Ljk4NjUsOTguMTY0KSI+PHN2ZzpwYXRoCiAgICAgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzAuMDAwMDA0LC0xNSkiCiAgICAgZD0iTSAtODUuMDAwMDA4LC0yIEEgMjAsMjAgMCAxIDEgLTEyNS4wMDAwMSwtMiBBIDIwLDIwIDAgMSAxIC04NS4wMDAwMDgsLTIgeiIKICAgICBzb2RpcG9kaTpyeT0iMjAiCiAgICAgc29kaXBvZGk6cng9IjIwIgogICAgIHNvZGlwb2RpOmN5PSItMiIKICAgICBzb2RpcG9kaTpjeD0iLTEwNS4wMDAwMSIKICAgICBpZD0icGF0aDMwMDIiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOm5vbmU7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiCiAgICAgc29kaXBvZGk6dHlwZT0iYXJjIiAvPjxzdmc6dGV4dAogICAgIHNvZGlwb2RpOmxpbmVzcGFjaW5nPSIxMjUlIgogICAgIGlkPSJ0ZXh0MzAwNCIKICAgICB5PSItOC4wOTM3NSIKICAgICB4PSItNTAuNzUiCiAgICAgc3R5bGU9ImZvbnQtc2l6ZToyNHB4O2ZvbnQtc3R5bGU6bm9ybWFsO2ZvbnQtdmFyaWFudDpub3JtYWw7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtc3RyZXRjaDpub3JtYWw7dGV4dC1hbGlnbjpzdGFydDtsaW5lLWhlaWdodDoxMjUlO3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlO2ZvbnQtZmFtaWx5OkRlamFWdSBTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246RGVqYVZ1IFNhbnMiCiAgICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN2Zzp0c3BhbgogICAgICAgeT0iLTguMDkzNzUiCiAgICAgICB4PSItNTAuNzUiCiAgICAgICBpZD0idHNwYW4zMDA2IgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSI+MTA8L3N2Zzp0c3Bhbj48L3N2Zzp0ZXh0Pgo8L3N2ZzpnPjxzdmc6ZwogICBzdHlsZT0ib3ZlcmZsb3c6dmlzaWJsZSIKICAgaWQ9ImczMDA4IgogICB0cmFuc2Zvcm09Im1hdHJpeCgxLjAxMiwwLDAsMS4wMTIsNTMuNTg2NTA0LDE3NC4wNjQpIj48c3ZnOnBhdGgKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3MC4wMDAwMDQsLTE1KSIKICAgICBkPSJNIC04NS4wMDAwMDgsLTIgQSAyMCwyMCAwIDEgMSAtMTI1LjAwMDAxLC0yIEEgMjAsMjAgMCAxIDEgLTg1LjAwMDAwOCwtMiB6IgogICAgIHNvZGlwb2RpOnJ5PSIyMCIKICAgICBzb2RpcG9kaTpyeD0iMjAiCiAgICAgc29kaXBvZGk6Y3k9Ii0yIgogICAgIHNvZGlwb2RpOmN4PSItMTA1LjAwMDAxIgogICAgIGlkPSJwYXRoMzAxMCIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6bm9uZTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTp0eXBlPSJhcmMiIC8+PHN2Zzp0ZXh0CiAgICAgc29kaXBvZGk6bGluZXNwYWNpbmc9IjEyNSUiCiAgICAgaWQ9InRleHQzMDEyIgogICAgIHk9Ii04LjA5Mzc1IgogICAgIHg9Ii00Mi4zMTI1MDQiCiAgICAgc3R5bGU9ImZvbnQtc2l6ZToyNHB4O2ZvbnQtc3R5bGU6bm9ybWFsO2ZvbnQtdmFyaWFudDpub3JtYWw7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtc3RyZXRjaDpub3JtYWw7dGV4dC1hbGlnbjpzdGFydDtsaW5lLWhlaWdodDoxMjUlO3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlO2ZvbnQtZmFtaWx5OkRlamFWdSBTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246RGVqYVZ1IFNhbnMiCiAgICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN2Zzp0c3BhbgogICAgICAgeT0iLTguMDkzNzUiCiAgICAgICB4PSItNDIuMzEyNTA0IgogICAgICAgaWQ9InRzcGFuMzAxNCIKICAgICAgIHNvZGlwb2RpOnJvbGU9ImxpbmUiPjE8L3N2Zzp0c3Bhbj48L3N2Zzp0ZXh0Pgo8L3N2ZzpnPjxzdmc6ZwogICBzdHlsZT0ib3ZlcmZsb3c6dmlzaWJsZSIKICAgaWQ9ImczMDE2IgogICB0cmFuc2Zvcm09Im1hdHJpeCgxLjAxMiwwLDAsMS4wMTIsMTU0Ljc4NjUsMTc0LjA2NCkiPjxzdmc6cGF0aAogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKDcwLjAwMDAwNCwtMTUpIgogICAgIGQ9Ik0gLTg1LjAwMDAwOCwtMiBBIDIwLDIwIDAgMSAxIC0xMjUuMDAwMDEsLTIgQSAyMCwyMCAwIDEgMSAtODUuMDAwMDA4LC0yIHoiCiAgICAgc29kaXBvZGk6cnk9IjIwIgogICAgIHNvZGlwb2RpOnJ4PSIyMCIKICAgICBzb2RpcG9kaTpjeT0iLTIiCiAgICAgc29kaXBvZGk6Y3g9Ii0xMDUuMDAwMDEiCiAgICAgaWQ9InBhdGgzMDE4IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDpub25lO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIgogICAgIHNvZGlwb2RpOnR5cGU9ImFyYyIgLz48c3ZnOnRleHQKICAgICBzb2RpcG9kaTpsaW5lc3BhY2luZz0iMTI1JSIKICAgICBpZD0idGV4dDMwMjAiCiAgICAgeT0iLTguMDkzNzUiCiAgICAgeD0iLTQyLjMxMjUwNCIKICAgICBzdHlsZT0iZm9udC1zaXplOjI0cHg7Zm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDt0ZXh0LWFsaWduOnN0YXJ0O2xpbmUtaGVpZ2h0OjEyNSU7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0O29wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGU7Zm9udC1mYW1pbHk6RGVqYVZ1IFNhbnM7LWlua3NjYXBlLWZvbnQtc3BlY2lmaWNhdGlvbjpEZWphVnUgU2FucyIKICAgICB4bWw6c3BhY2U9InByZXNlcnZlIj48c3ZnOnRzcGFuCiAgICAgICB5PSItOC4wOTM3NSIKICAgICAgIHg9Ii00Mi4zMTI1MDQiCiAgICAgICBpZD0idHNwYW4zMDIyIgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSI+Njwvc3ZnOnRzcGFuPjwvc3ZnOnRleHQ+Cjwvc3ZnOmc+PHN2ZzpnCiAgIHN0eWxlPSJvdmVyZmxvdzp2aXNpYmxlIgogICBpZD0iZzMwMjQiCiAgIHRyYW5zZm9ybT0ibWF0cml4KDEuMDEyLDAsMCwxLjAxMiwzMDYuNTg2NSwxNzQuMDY0KSI+PHN2ZzpwYXRoCiAgICAgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzAuMDAwMDA0LC0xNSkiCiAgICAgZD0iTSAtODUuMDAwMDA4LC0yIEEgMjAsMjAgMCAxIDEgLTEyNS4wMDAwMSwtMiBBIDIwLDIwIDAgMSAxIC04NS4wMDAwMDgsLTIgeiIKICAgICBzb2RpcG9kaTpyeT0iMjAiCiAgICAgc29kaXBvZGk6cng9IjIwIgogICAgIHNvZGlwb2RpOmN5PSItMiIKICAgICBzb2RpcG9kaTpjeD0iLTEwNS4wMDAwMSIKICAgICBpZD0icGF0aDMwMjYiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOm5vbmU7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiCiAgICAgc29kaXBvZGk6dHlwZT0iYXJjIiAvPjxzdmc6dGV4dAogICAgIHNvZGlwb2RpOmxpbmVzcGFjaW5nPSIxMjUlIgogICAgIGlkPSJ0ZXh0MzAyOCIKICAgICB5PSItOC4wOTM3NSIKICAgICB4PSItNTAuNzUiCiAgICAgc3R5bGU9ImZvbnQtc2l6ZToyNHB4O2ZvbnQtc3R5bGU6bm9ybWFsO2ZvbnQtdmFyaWFudDpub3JtYWw7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtc3RyZXRjaDpub3JtYWw7dGV4dC1hbGlnbjpzdGFydDtsaW5lLWhlaWdodDoxMjUlO3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlO2ZvbnQtZmFtaWx5OkRlamFWdSBTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246RGVqYVZ1IFNhbnMiCiAgICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN2Zzp0c3BhbgogICAgICAgeT0iLTguMDkzNzUiCiAgICAgICB4PSItNTAuNzUiCiAgICAgICBpZD0idHNwYW4zMDMwIgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSI+MTQ8L3N2Zzp0c3Bhbj48L3N2Zzp0ZXh0Pgo8L3N2ZzpnPjxzdmc6ZwogICBzdHlsZT0ib3ZlcmZsb3c6dmlzaWJsZSIKICAgaWQ9ImczMDMyIgogICB0cmFuc2Zvcm09Im1hdHJpeCgxLjAxMiwwLDAsMS4wMTIsMTE0LjMwNjUsMjQ0LjkwNCkiPjxzdmc6cGF0aAogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKDcwLjAwMDAwNCwtMTUpIgogICAgIGQ9Ik0gLTg1LjAwMDAwOCwtMiBBIDIwLDIwIDAgMSAxIC0xMjUuMDAwMDEsLTIgQSAyMCwyMCAwIDEgMSAtODUuMDAwMDA4LC0yIHoiCiAgICAgc29kaXBvZGk6cnk9IjIwIgogICAgIHNvZGlwb2RpOnJ4PSIyMCIKICAgICBzb2RpcG9kaTpjeT0iLTIiCiAgICAgc29kaXBvZGk6Y3g9Ii0xMDUuMDAwMDEiCiAgICAgaWQ9InBhdGgzMDM0IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDpub25lO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIgogICAgIHNvZGlwb2RpOnR5cGU9ImFyYyIgLz48c3ZnOnRleHQKICAgICBzb2RpcG9kaTpsaW5lc3BhY2luZz0iMTI1JSIKICAgICBpZD0idGV4dDMwMzYiCiAgICAgeT0iLTguMDkzNzUiCiAgICAgeD0iLTQyLjMxMjUwNCIKICAgICBzdHlsZT0iZm9udC1zaXplOjI0cHg7Zm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDt0ZXh0LWFsaWduOnN0YXJ0O2xpbmUtaGVpZ2h0OjEyNSU7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0O29wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGU7Zm9udC1mYW1pbHk6RGVqYVZ1IFNhbnM7LWlua3NjYXBlLWZvbnQtc3BlY2lmaWNhdGlvbjpEZWphVnUgU2FucyIKICAgICB4bWw6c3BhY2U9InByZXNlcnZlIj48c3ZnOnRzcGFuCiAgICAgICB5PSItOC4wOTM3NSIKICAgICAgIHg9Ii00Mi4zMTI1MDQiCiAgICAgICBpZD0idHNwYW4zMDM4IgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSI+NDwvc3ZnOnRzcGFuPjwvc3ZnOnRleHQ+Cjwvc3ZnOmc+PHN2ZzpnCiAgIHN0eWxlPSJvdmVyZmxvdzp2aXNpYmxlIgogICBpZD0iZzMwNDAiCiAgIHRyYW5zZm9ybT0ibWF0cml4KDEuMDEyLDAsMCwxLjAxMiwxODYuOTk0NTksMjQ0Ljc0MzkpIj48c3ZnOnBhdGgKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3OC4xNzM4MzIsLTE0Ljg0MTc5NykiCiAgICAgZD0iTSAtODUuMDAwMDA4LC0yIEEgMjAsMjAgMCAxIDEgLTEyNS4wMDAwMSwtMiBBIDIwLDIwIDAgMSAxIC04NS4wMDAwMDgsLTIgeiIKICAgICBzb2RpcG9kaTpyeT0iMjAiCiAgICAgc29kaXBvZGk6cng9IjIwIgogICAgIHNvZGlwb2RpOmN5PSItMiIKICAgICBzb2RpcG9kaTpjeD0iLTEwNS4wMDAwMSIKICAgICBpZD0icGF0aDMwNDIiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOm5vbmU7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiCiAgICAgc29kaXBvZGk6dHlwZT0iYXJjIiAvPjxzdmc6dGV4dAogICAgIHNvZGlwb2RpOmxpbmVzcGFjaW5nPSIxMjUlIgogICAgIGlkPSJ0ZXh0MzA0NCIKICAgICB5PSItOC4wOTM3NSIKICAgICB4PSItMzQuMzEyNTA0IgogICAgIHN0eWxlPSJmb250LXNpemU6MjRweDtmb250LXN0eWxlOm5vcm1hbDtmb250LXZhcmlhbnQ6bm9ybWFsO2ZvbnQtd2VpZ2h0Om5vcm1hbDtmb250LXN0cmV0Y2g6bm9ybWFsO3RleHQtYWxpZ246c3RhcnQ7bGluZS1oZWlnaHQ6MTI1JTt3cml0aW5nLW1vZGU6bHItdGI7dGV4dC1hbmNob3I6c3RhcnQ7b3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6bm9uZTtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZTtmb250LWZhbWlseTpEZWphVnUgU2FuczstaW5rc2NhcGUtZm9udC1zcGVjaWZpY2F0aW9uOkRlamFWdSBTYW5zIgogICAgIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdmc6dHNwYW4KICAgICAgIHk9Ii04LjA5Mzc1IgogICAgICAgeD0iLTM0LjMxMjUwNCIKICAgICAgIGlkPSJ0c3BhbjMwNDYiCiAgICAgICBzb2RpcG9kaTpyb2xlPSJsaW5lIj43PC9zdmc6dHNwYW4+PC9zdmc6dGV4dD4KPC9zdmc6Zz48c3ZnOmcKICAgc3R5bGU9Im92ZXJmbG93OnZpc2libGUiCiAgIGlkPSJnMzA0OCIKICAgdHJhbnNmb3JtPSJtYXRyaXgoMS4wMTIsMCwwLDEuMDEyLDI1NS45ODY1LDI0NC45MDQpIj48c3ZnOnBhdGgKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3MC4wMDAwMDQsLTE1KSIKICAgICBkPSJNIC04NS4wMDAwMDgsLTIgQSAyMCwyMCAwIDEgMSAtMTI1LjAwMDAxLC0yIEEgMjAsMjAgMCAxIDEgLTg1LjAwMDAwOCwtMiB6IgogICAgIHNvZGlwb2RpOnJ5PSIyMCIKICAgICBzb2RpcG9kaTpyeD0iMjAiCiAgICAgc29kaXBvZGk6Y3k9Ii0yIgogICAgIHNvZGlwb2RpOmN4PSItMTA1LjAwMDAxIgogICAgIGlkPSJwYXRoMzA1MCIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6bm9uZTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTp0eXBlPSJhcmMiIC8+PHN2Zzp0ZXh0CiAgICAgc29kaXBvZGk6bGluZXNwYWNpbmc9IjEyNSUiCiAgICAgaWQ9InRleHQzMDUyIgogICAgIHk9Ii04LjM0Mzc1IgogICAgIHg9Ii01MC4wNjI1MDQiCiAgICAgc3R5bGU9ImZvbnQtc2l6ZToyNHB4O2ZvbnQtc3R5bGU6bm9ybWFsO2ZvbnQtdmFyaWFudDpub3JtYWw7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtc3RyZXRjaDpub3JtYWw7dGV4dC1hbGlnbjpzdGFydDtsaW5lLWhlaWdodDoxMjUlO3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlO2ZvbnQtZmFtaWx5OkRlamFWdSBTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246RGVqYVZ1IFNhbnMiCiAgICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN2Zzp0c3BhbgogICAgICAgeT0iLTguMzQzNzUiCiAgICAgICB4PSItNTAuMDYyNTA0IgogICAgICAgaWQ9InRzcGFuMzA1NCIKICAgICAgIHNvZGlwb2RpOnJvbGU9ImxpbmUiPjEzPC9zdmc6dHNwYW4+PC9zdmc6dGV4dD4KPC9zdmc6Zz48c3ZnOmcKICAgaWQ9ImczMDk2IgogICBpbmtzY2FwZTp0cmFuc2Zvcm0tY2VudGVyLXk9IjI1LjExMzI5IgogICB0cmFuc2Zvcm09Im1hdHJpeCgtMC41OTc3Mzc4LC0wLjgwMTY5MTcsMC44MDE2OTE3LC0wLjU5NzczNzgsMTMxLjkyNzY2LDIzMy44MDcxOSkiCiAgIGlua3NjYXBlOnRyYW5zZm9ybS1jZW50ZXIteD0iMzMuNjcyMjYiPjxzdmc6cGF0aAogICAgIGlkPSJwYXRoMzA5MiIKICAgICBkPSJNIDE1OS44NTg1MSw2MC42OTU5OTQgTCAxNTYuODEwNTIsNzQuODg3OTk0IEwgMTYyLjkwNjUyLDc0Ljg4Nzk5NCBMIDE1OS44NTg1MSw2MC42OTU5OTQgeiIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS45OTk5OTk4ODtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIgLz48c3ZnOnBhdGgKICAgICBpZD0icGF0aDMwOTQiCiAgICAgZD0iTSAxNTkuODQ2NSw3MC44NCBMIDE1OS44NDY1LDExNC43NzU1MSIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjIiAvPjwvc3ZnOmc+PHN2ZzpnCiAgIHN0eWxlPSJvdmVyZmxvdzp2aXNpYmxlIgogICBpZD0iZzMxMDYiCiAgIGlua3NjYXBlOnRyYW5zZm9ybS1jZW50ZXIteT0iMjUuMTEzMjkiCiAgIHRyYW5zZm9ybT0ibWF0cml4KDAuNTk3NzM3OCwtMC44MDE2OTE3LC0wLjgwMTY5MTcsLTAuNTk3NzM3OCwxNTYuNDEwMiwyMzMuODA3MTkpIgogICBpbmtzY2FwZTp0cmFuc2Zvcm0tY2VudGVyLXg9Ii0zMy42NzIyNiI+PHN2ZzpwYXRoCiAgICAgaWQ9InBhdGgzMTA4IgogICAgIGQ9Ik0gMTU5Ljg1ODUxLDYwLjY5NTk5NCBMIDE1Ni44MTA1Miw3NC44ODc5OTQgTCAxNjIuOTA2NTIsNzQuODg3OTk0IEwgMTU5Ljg1ODUxLDYwLjY5NTk5NCB6IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxLjk5OTk5OTg4O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIiAvPjxzdmc6cGF0aAogICAgIGlkPSJwYXRoMzExMCIKICAgICBkPSJNIDE1OS44NDY1LDcwLjg0IEwgMTU5Ljg0NjUsMTE0Ljc3NTUxIgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIgogICAgIHNvZGlwb2RpOm5vZGV0eXBlcz0iY2MiIC8+PC9zdmc6Zz48c3ZnOmcKICAgc3R5bGU9Im92ZXJmbG93OnZpc2libGUiCiAgIGlkPSJnMzExMiIKICAgaW5rc2NhcGU6dHJhbnNmb3JtLWNlbnRlci15PSIzNS4xNDMxMzIiCiAgIHRyYW5zZm9ybT0ibWF0cml4KC0wLjgzNjU0NTcsLTAuNTQ3ODk3MywwLjU0Nzg5NzMsLTAuODM2NTQ1NywxMzAuNjYzNjEsMjc4LjA2ODgyKSIKICAgaW5rc2NhcGU6dHJhbnNmb3JtLWNlbnRlci14PSIyMy4wMDk5NzYiPjxzdmc6cGF0aAogICAgIGlkPSJwYXRoMzExNCIKICAgICBkPSJNIDE1OS44NTg1MSw2MC42OTU5OTQgTCAxNTYuODEwNTIsNzQuODg3OTk0IEwgMTYyLjkwNjUyLDc0Ljg4Nzk5NCBMIDE1OS44NTg1MSw2MC42OTU5OTQgeiIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS45OTk5OTk4ODtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIgLz48c3ZnOnBhdGgKICAgICBpZD0icGF0aDMxMTYiCiAgICAgZD0iTSAxNTkuODQ2NSw3MC44NCBMIDE1OS44NDY1LDExMC43NTg2NiIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjIiAvPjwvc3ZnOmc+PHN2ZzpnCiAgIHN0eWxlPSJvdmVyZmxvdzp2aXNpYmxlIgogICBpZD0iZzMxMTgiCiAgIGlua3NjYXBlOnRyYW5zZm9ybS1jZW50ZXIteT0iMzUuMTQzMTMyIgogICB0cmFuc2Zvcm09Im1hdHJpeCgwLjgzNjU0NTcsLTAuNTQ3ODk3MywtMC41NDc4OTczLC0wLjgzNjU0NTcsNy4yNTY2NDI1LDI3OC4xNDczNikiCiAgIGlua3NjYXBlOnRyYW5zZm9ybS1jZW50ZXIteD0iLTIzLjAwOTk3NiI+PHN2ZzpwYXRoCiAgICAgaWQ9InBhdGgzMTIwIgogICAgIGQ9Ik0gMTU5Ljg1ODUxLDYwLjY5NTk5NCBMIDE1Ni44MTA1Miw3NC44ODc5OTQgTCAxNjIuOTA2NTIsNzQuODg3OTk0IEwgMTU5Ljg1ODUxLDYwLjY5NTk5NCB6IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxLjk5OTk5OTg4O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIiAvPjxzdmc6cGF0aAogICAgIGlkPSJwYXRoMzEyMiIKICAgICBkPSJNIDE1OS44NDY1LDcwLjg0IEwgMTU5Ljg0NjUsMTEwLjc1ODY2IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIgogICAgIHNvZGlwb2RpOm5vZGV0eXBlcz0iY2MiIC8+PC9zdmc6Zz48c3ZnOmcKICAgc3R5bGU9Im92ZXJmbG93OnZpc2libGUiCiAgIGlkPSJnMzEyNCIKICAgaW5rc2NhcGU6dHJhbnNmb3JtLWNlbnRlci15PSIzNS4xNDMxMzIiCiAgIHRyYW5zZm9ybT0ibWF0cml4KDAuODM2NTQ1NywtMC41NDc4OTczLC0wLjU0Nzg5NzMsLTAuODM2NTQ1NywxNTkuNTYyNjQsMjc3Ljg5NDM2KSIKICAgaW5rc2NhcGU6dHJhbnNmb3JtLWNlbnRlci14PSItMjMuMDA5OTc2Ij48c3ZnOnBhdGgKICAgICBpZD0icGF0aDMxMjYiCiAgICAgZD0iTSAxNTkuODU4NTEsNjAuNjk1OTk0IEwgMTU2LjgxMDUyLDc0Ljg4Nzk5NCBMIDE2Mi45MDY1Miw3NC44ODc5OTQgTCAxNTkuODU4NTEsNjAuNjk1OTk0IHoiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuOTk5OTk5ODg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiIC8+PHN2ZzpwYXRoCiAgICAgaWQ9InBhdGgzMTI4IgogICAgIGQ9Ik0gMTU5Ljg0NjUsNzAuODQgTCAxNTkuODQ2NSwxMTAuNzU4NjYiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjI7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiCiAgICAgc29kaXBvZGk6bm9kZXR5cGVzPSJjYyIgLz48L3N2ZzpnPjxzdmc6ZwogICBzdHlsZT0ib3ZlcmZsb3c6dmlzaWJsZSIKICAgaWQ9ImczMTMwIgogICBpbmtzY2FwZTp0cmFuc2Zvcm0tY2VudGVyLXk9IjM1LjE0MzEzMiIKICAgdHJhbnNmb3JtPSJtYXRyaXgoLTAuODM2NTQ1NywtMC41NDc4OTczLDAuNTQ3ODk3MywtMC44MzY1NDU3LDMzMy4xODIzNiwzNDkuNDkzMzYpIgogICBpbmtzY2FwZTp0cmFuc2Zvcm0tY2VudGVyLXg9IjIzLjAwOTk3NiI+PHN2ZzpwYXRoCiAgICAgaWQ9InBhdGgzMTMyIgogICAgIGQ9Ik0gMTU5Ljg1ODUxLDYwLjY5NTk5NCBMIDE1Ni44MTA1Miw3NC44ODc5OTQgTCAxNjIuOTA2NTIsNzQuODg3OTk0IEwgMTU5Ljg1ODUxLDYwLjY5NTk5NCB6IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxLjk5OTk5OTg4O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIiAvPjxzdmc6cGF0aAogICAgIGlkPSJwYXRoMzEzNCIKICAgICBkPSJNIDE1OS44NDY1LDcwLjg0IEwgMTU5Ljg0NjUsMTA3LjExODI4IgogICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO21hcmtlcjpub25lO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlIgogICAgIHNvZGlwb2RpOm5vZGV0eXBlcz0iY2MiIC8+PC9zdmc6Zz48c3ZnOmcKICAgc3R5bGU9Im92ZXJmbG93OnZpc2libGUiCiAgIGlkPSJnMzE0MiIKICAgaW5rc2NhcGU6dHJhbnNmb3JtLWNlbnRlci15PSIzNi43OTc0ODQiCiAgIHRyYW5zZm9ybT0ibWF0cml4KDAuODc1OTM4OCwtMC40ODI0MjI0LC0wLjQ4MjQyMjQsLTAuODc1OTM4OCwzOS42Mjk5NDEsMzQwLjIwMDA0KSIKICAgaW5rc2NhcGU6dHJhbnNmb3JtLWNlbnRlci14PSItMjAuMjU5NDA3Ij48c3ZnOnBhdGgKICAgICBpZD0icGF0aDMxNDQiCiAgICAgZD0iTSAxNTkuODU4NTEsNjAuNjk1OTk0IEwgMTU2LjgxMDUyLDc0Ljg4Nzk5NCBMIDE2Mi45MDY1Miw3NC44ODc5OTQgTCAxNTkuODU4NTEsNjAuNjk1OTk0IHoiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuOTk5OTk5ODg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiIC8+PHN2ZzpwYXRoCiAgICAgaWQ9InBhdGgzMTQ2IgogICAgIGQ9Ik0gMTU5Ljg0NjUsNzAuODQgTCAxNTkuODQ2NSwxMDEuOTcwNiIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjIiAvPjwvc3ZnOmc+PHN2ZzpnCiAgIHN0eWxlPSJvdmVyZmxvdzp2aXNpYmxlIgogICBpZD0iZzMxNDgiCiAgIGlua3NjYXBlOnRyYW5zZm9ybS1jZW50ZXIteT0iMzYuNzk3NDg0IgogICB0cmFuc2Zvcm09Im1hdHJpeCgtMC44NzU5Mzg4LC0wLjQ4MjQyMjQsMC40ODI0MjI0LC0wLjg3NTkzODgsMTk5LjkwNzQ1LDM0MS41NjUwNCkiCiAgIGlua3NjYXBlOnRyYW5zZm9ybS1jZW50ZXIteD0iMjAuMjU5NDA3Ij48c3ZnOnBhdGgKICAgICBpZD0icGF0aDMxNTAiCiAgICAgZD0iTSAxNTkuODU4NTEsNjAuNjk1OTk0IEwgMTU2LjgxMDUyLDc0Ljg4Nzk5NCBMIDE2Mi45MDY1Miw3NC44ODc5OTQgTCAxNTkuODU4NTEsNjAuNjk1OTk0IHoiCiAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuOTk5OTk5ODg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7bWFya2VyOm5vbmU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxO3Zpc2liaWxpdHk6dmlzaWJsZTtkaXNwbGF5OmlubGluZTtvdmVyZmxvdzp2aXNpYmxlO2VuYWJsZS1iYWNrZ3JvdW5kOmFjY3VtdWxhdGUiIC8+PHN2ZzpwYXRoCiAgICAgaWQ9InBhdGgzMTUyIgogICAgIGQ9Ik0gMTU5Ljg0NjUsNzAuODQgTCAxNTkuODQ2NSwxMDEuOTcwNiIKICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjttYXJrZXI6bm9uZTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjE7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZSIKICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjIiAvPjwvc3ZnOmc+PC9zdmc6c3ZnPg==" /></p>
+<p>Graph source: <a href="https://en.wikipedia.org/wiki/Binary_search_tree">Binary Search Tree @ WIKIPEDIA</a>.</p>
+<p>We try the package:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="co"># we define the &quot;&lt;&quot; and &quot;=&quot;</span></a>
+<a class="sourceLine" id="cb12-2" title="2">lessthan &lt;-<span class="st"> </span><span class="cf">function</span>(x, y) <span class="kw">return</span>(x <span class="op">&lt;</span><span class="st"> </span>y)</a>
+<a class="sourceLine" id="cb12-3" title="3">equal &lt;-<span class="st"> </span><span class="cf">function</span>(x, y) <span class="kw">return</span>(x <span class="op">==</span><span class="st"> </span>y)</a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="co"># then we initialize the tree</span></a>
+<a class="sourceLine" id="cb12-5" title="5">bst &lt;-<span class="st"> </span>RBST<span class="op">$</span><span class="kw">new</span>(<span class="dt">lessthan=</span>lessthan, <span class="dt">equal=</span>equal)</a>
+<a class="sourceLine" id="cb12-6" title="6"></a>
+<a class="sourceLine" id="cb12-7" title="7"><span class="co"># the nodes in a vector</span></a>
+<a class="sourceLine" id="cb12-8" title="8">nodes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8</span>, <span class="dv">3</span>, <span class="dv">10</span>, <span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">14</span>, <span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">13</span>)</a>
+<a class="sourceLine" id="cb12-9" title="9"><span class="co"># we add the nodes or elements</span></a>
+<a class="sourceLine" id="cb12-10" title="10">bst<span class="op">$</span><span class="kw">insert</span>(<span class="dt">collapse =</span> <span class="kw">as.list</span>(nodes))</a></code></pre></div>
+<p>OK, the tree is now built. When you read the manual of the <code>RBST</code> class, you will see that we can do traversal by calling the <code>traverse</code> function of the class. Each node or element can be manipulated by using the function <code>callback</code> that is input into <code>traverse</code>. But it is a really good dream that we can pass something by reference into the recursive <code>traverse</code> and do something inside the recursion.</p>
+<p>Now the dream comes true. We do:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># create an empty container to hold the elements</span></a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="co"># we choose the data structure queue</span></a>
+<a class="sourceLine" id="cb13-3" title="3">container &lt;-<span class="st"> </span>RQueue<span class="op">$</span><span class="kw">new</span>()</a>
+<a class="sourceLine" id="cb13-4" title="4">container<span class="op">$</span>size</a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="co">#&gt; [1] 0</span></a>
+<a class="sourceLine" id="cb13-6" title="6"></a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="co"># then we define the callback function which takes two arguments</span></a>
+<a class="sourceLine" id="cb13-8" title="8"><span class="co"># node: the node or element in the tree</span></a>
+<a class="sourceLine" id="cb13-9" title="9"><span class="co"># queue: additional argument hopefully pass-by-reference</span></a>
+<a class="sourceLine" id="cb13-10" title="10">callback &lt;-<span class="st"> </span><span class="cf">function</span>(item, queue) queue<span class="op">$</span><span class="kw">enqueue</span>(item)</a>
+<a class="sourceLine" id="cb13-11" title="11"><span class="co"># note that item is the value of the node but not the node!</span></a>
+<a class="sourceLine" id="cb13-12" title="12"></a>
+<a class="sourceLine" id="cb13-13" title="13"><span class="co"># traverse-in-order</span></a>
+<a class="sourceLine" id="cb13-14" title="14">bst<span class="op">$</span><span class="kw">traverse</span>(<span class="dt">mode=</span><span class="st">&quot;in&quot;</span>, <span class="dt">callback=</span>callback, container)</a>
+<a class="sourceLine" id="cb13-15" title="15"><span class="co"># it should be a sorted list of the elements in the tree</span></a>
+<a class="sourceLine" id="cb13-16" title="16"><span class="co"># 1  3  4  6  7  8 10 13 14</span></a>
+<a class="sourceLine" id="cb13-17" title="17"><span class="kw">unlist</span>(container<span class="op">$</span>toList)</a>
+<a class="sourceLine" id="cb13-18" title="18"><span class="co">#&gt; [1]  1  3  4  6  7  8 10 13 14</span></a>
+<a class="sourceLine" id="cb13-19" title="19"></a>
+<a class="sourceLine" id="cb13-20" title="20"><span class="co"># empty the container</span></a>
+<a class="sourceLine" id="cb13-21" title="21">container &lt;-<span class="st"> </span>RQueue<span class="op">$</span><span class="kw">new</span>()</a>
+<a class="sourceLine" id="cb13-22" title="22">container<span class="op">$</span>size</a>
+<a class="sourceLine" id="cb13-23" title="23"><span class="co">#&gt; [1] 0</span></a>
+<a class="sourceLine" id="cb13-24" title="24"></a>
+<a class="sourceLine" id="cb13-25" title="25"><span class="co"># traverse-pre-order</span></a>
+<a class="sourceLine" id="cb13-26" title="26">bst<span class="op">$</span><span class="kw">traverse</span>(<span class="dt">mode=</span><span class="st">&quot;pre&quot;</span>, <span class="dt">callback=</span>callback, container)</a>
+<a class="sourceLine" id="cb13-27" title="27"><span class="co"># it should be</span></a>
+<a class="sourceLine" id="cb13-28" title="28"><span class="co"># 8  3  1  6  4  7 10 14 13</span></a>
+<a class="sourceLine" id="cb13-29" title="29"><span class="kw">unlist</span>(container<span class="op">$</span>toList)</a>
+<a class="sourceLine" id="cb13-30" title="30"><span class="co">#&gt; [1]  8  3  1  6  4  7 10 14 13</span></a>
+<a class="sourceLine" id="cb13-31" title="31"></a>
+<a class="sourceLine" id="cb13-32" title="32"><span class="co"># empty the container</span></a>
+<a class="sourceLine" id="cb13-33" title="33">container &lt;-<span class="st"> </span>RQueue<span class="op">$</span><span class="kw">new</span>()</a>
+<a class="sourceLine" id="cb13-34" title="34">container<span class="op">$</span>size</a>
+<a class="sourceLine" id="cb13-35" title="35"><span class="co">#&gt; [1] 0</span></a>
+<a class="sourceLine" id="cb13-36" title="36"></a>
+<a class="sourceLine" id="cb13-37" title="37"><span class="co"># traverse-post-order</span></a>
+<a class="sourceLine" id="cb13-38" title="38">bst<span class="op">$</span><span class="kw">traverse</span>(<span class="dt">mode=</span><span class="st">&quot;post&quot;</span>, <span class="dt">callback=</span>callback, container)</a>
+<a class="sourceLine" id="cb13-39" title="39"><span class="co"># it should be </span></a>
+<a class="sourceLine" id="cb13-40" title="40"><span class="co"># 1  4  7  6  3 13 14 10  8</span></a>
+<a class="sourceLine" id="cb13-41" title="41"><span class="kw">unlist</span>(container<span class="op">$</span>toList)</a>
+<a class="sourceLine" id="cb13-42" title="42"><span class="co">#&gt; [1]  1  4  7  6  3 13 14 10  8</span></a></code></pre></div>
+<p>You can pass any instance of some reference class into the function to make the manipulation of the data much more flexible. And you should see how important the package can be…</p>
+<p>But of course, the example is somewhat “stupid” as you can solve the same problem by using some global variable. However, global variable should not be preferred in many other cases, for example: when you want to share your code with others, and preferrably the function offers the only interface (they do not need to know the names of the global variables and create them manually)</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -24,7 +24,7 @@ In order to create an instance of the R6 type reference class, you will have to 
 where \code{RStack} is an R6 type reference class.
 
 The reference class has the feature that each time when you pass (or assign) an instance of the reference class to somewhere,
-it is not pass-by-copy but pass-by-reference. For example, suppose there is an instance of the reference class \code{x} who has an attribute \code{x$y}.
+it is not pass-by-value but pass-by-reference. For example, suppose there is an instance of the reference class \code{x} who has an attribute \code{x$y}.
 If you pass it to a function \code{func} by using \code{func(x)}, the function will not copy x but pass it as a reference.
 Inside the function \code{func}, if there is a sentence like
 
@@ -107,17 +107,31 @@ For the details about the data structures, see \href{https://en.wikipedia.org/wi
 
 
 \describe{
+
 \item{\code{new(..., collapse=NULL)}}{
 a method belonging to the class which create an instance of the class.
 The method creates a new instance of some class in the package
 containing the values in \code{...} and \code{collapse} as its elements.
 }
-\item{\code{clone(deep=FALSE)}}{
-an immutable method of an instance which returns of copy of the instance.
-The \code{deep=TRUE} argument indicates that \code{clone} also gives a copy of its members.
+
+\item{\code{toList}}{
+an active immutable method of an instance which returns a list containing its elements (a copy).
+
+Note that \code{\link{RBST}} has multiple versions of the \code{toList} methods.
 }
+
+\item{\code{is_empty()}}{
+a method which returns a boolean showing if the instance is empty.
+}
+
 \item{\code{size}}{
 an active immutable method of an instance to return its size (like the \code{length} of an R vector).
+}
+
+\item{\code{release()}}{
+a method of an instance which does the garbage collection and releases the redundant memory occupation.
+
+Note that \code{\link{RDict}} \code{\link{RBST}} do not have this methhod.
 }
 
 }
